@@ -1,0 +1,136 @@
+object frmeBase: TfrmeBase
+  Left = 0
+  Top = 0
+  Width = 640
+  Height = 359
+  TabOrder = 0
+  object pnlCenter: TPanel
+    AlignWithMargins = True
+    Left = 3
+    Top = 20
+    Width = 527
+    Height = 336
+    Margins.Top = 20
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 0
+    ExplicitTop = 3
+    ExplicitHeight = 353
+    object pgChildBase: TPageControl
+      AlignWithMargins = True
+      Left = 3
+      Top = 10
+      Width = 521
+      Height = 323
+      Margins.Top = 10
+      ActivePage = tbsChildListagem
+      Align = alClient
+      TabOrder = 0
+      ExplicitHeight = 340
+      object tbsChildListagem: TTabSheet
+        Caption = 'tbsChildListagem'
+        object dbgFrame: TDBGrid
+          Left = 0
+          Top = 0
+          Width = 513
+          Height = 293
+          Align = alClient
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+        end
+      end
+      object tbsChildCadastro: TTabSheet
+        Caption = 'tbsChildCadastro'
+        ImageIndex = 1
+      end
+    end
+  end
+  object pnlSide: TPanel
+    AlignWithMargins = True
+    Left = 536
+    Top = 20
+    Width = 101
+    Height = 336
+    Margins.Top = 20
+    Align = alRight
+    BevelOuter = bvNone
+    TabOrder = 1
+    ExplicitTop = 10
+    ExplicitHeight = 346
+    object btnFrameNovo: TButton
+      AlignWithMargins = True
+      Left = 5
+      Top = 5
+      Width = 91
+      Height = 25
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alTop
+      Caption = 'Novo'
+      TabOrder = 0
+    end
+    object btnFrameEditar: TButton
+      AlignWithMargins = True
+      Left = 5
+      Top = 40
+      Width = 91
+      Height = 25
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alTop
+      Caption = 'Editar'
+      TabOrder = 1
+    end
+    object btnFrameDeletar: TButton
+      AlignWithMargins = True
+      Left = 5
+      Top = 75
+      Width = 91
+      Height = 25
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alTop
+      Caption = 'Delete'
+      TabOrder = 2
+    end
+    object btnFrameCancelar: TButton
+      AlignWithMargins = True
+      Left = 5
+      Top = 145
+      Width = 91
+      Height = 25
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alTop
+      Caption = 'Cancelar'
+      TabOrder = 3
+    end
+    object btnFrameGravar: TButton
+      AlignWithMargins = True
+      Left = 5
+      Top = 110
+      Width = 91
+      Height = 25
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
+      Align = alTop
+      Caption = 'Gravar'
+      TabOrder = 4
+    end
+  end
+end

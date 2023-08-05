@@ -1,0 +1,29 @@
+unit Vendas.Controller.Entidade.Venda;
+
+interface
+
+uses
+  Data.DB,
+  Generics.Collections,
+  Vendas.Controller.Classes.BaseCadastroAtributo;
+
+type
+  TVendaControllerEntidadeVendas = class
+  private
+    FcdVenda: Integer;
+    FcdCliente: Integer;
+    FdtEmissao: TDate;
+  public
+    [TMontaQueryCamposDataSet('cdvenda','Cód. Venda', ftinteger)]
+    property cdVenda: Integer read FcdVenda write FcdVenda;
+    [TMontaCamposDataSet('cdcliente','Cód. Cliente', ftinteger)]
+    property cdCliente: Integer read FcdCliente write FcdCliente;
+    [TMontaCamposDataSet('dtemissao','Dt Emissão', ftDate)]
+    property dtEmissao: TDate read FdtEmissao write FdtEmissao;
+  end;
+
+implementation
+
+{ TVendaControllerEntidadeVendas }
+
+end.

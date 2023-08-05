@@ -1,0 +1,670 @@
+unit Vendas.Controller.FrameBase;
+
+interface
+
+uses
+  System.Classes,
+  System.SysUtils,
+  System.Variants,
+  System.UITypes,
+  Vcl.Forms,
+  Vcl.ActnList,
+  Vcl.ComCtrls,
+  Vcl.DBGrids,
+  Vcl.DBCtrls,
+  Vcl.Controls,
+  Vcl.Dialogs,
+  Generics.Collections,
+  RTTI,
+  Data.DB,
+  Vendas.Controller.Classes.Constantes,
+  Vendas.Controller.Classes.BaseCadastroAtributo,
+  Vendas.Model.BaseCadastro,
+  FireDAC.Comp.Client, Vcl.StdCtrls,
+  Vendas.Controller.Construtores,
+  Vendas.Model.Conexao, Vcl.Menus, Winapi.Messages, Winapi.Windows;
+
+Type
+  TBaseFrameController = class(TInterfacedObject, iModelBaseCadastro)
+  private
+    FFrameBase: TFrame;
+    FListaAcoesFrame: TDicionarioAcoes;
+    FListaTabSheetsFrame: TDicionarioTabSheets;
+    FPageBaseCadastroFrame: TPageControl;
+    FAcaoAtual: TTipoAcao;
+    FDataSourceFrame: TDataSource;
+    FDBGridListagemFrame: TDBGrid;
+    FGeraEdits: Boolean;
+    FPrimariKeyFieldBase: TField;
+    FGravaAutomaticoProc: TRotinaGravaAutomatico;
+    FAcoesBotoes: TActionList;
+    FDataSetPrincipal: TFDQuery;
+    FConexao: iConexao;
+    FConstrutor: TVendasControlerConstrutores;
+    FListaDataSource: TDicionarioDataSource;
+    FDadosFrame: TDadosColecao;
+    FClasseDataSetPrincipal: Tclass;
+    /// <summary>
+    /// Faz coleta dos atributos associados ao FRAME
+    /// </summary>
+    procedure ColetarAtributos;
+    /// <summary>
+    /// Faz coleta dos métodos para atribuir a eventos dos componentes edit como: OnExit, OnEnter...
+    /// </summary>
+    procedure ColetarMetodoEditAtributos;
+    /// <summary>
+    /// Faz o controle de botões de edição do FRAME
+    /// </summary>
+    procedure HabilitarBotoes;
+    /// <summary>
+    /// Seleciona página de trabalho conforme ação chamada
+    /// </summary>
+    procedure SelecionarPagina;
+    /// <summary>
+    /// Configura o controle da base de dados principal do FRAME
+    /// </summary>
+    procedure ConfigurarBasePrincipal;
+    /// <summary>
+    /// Configura as ações e opreações do FRAME pelo atributo
+    /// </summary>
+    procedure ConfiguraAtibutos(AoRTTIField: TRttiField);
+    /// <summary>
+    /// Gera os edits automáticos
+    /// </summary>
+    procedure GerarEditsAutomatico;
+    /// <summary>
+    /// Identifica e instancia a chave primária para controle
+    /// </summary>
+    procedure CapturaChavePrimaria;
+    /// <summary>
+    /// Contrutor do componente Edit
+    /// </summary>
+    procedure ConstruirEdit(ATabSheetCadastro: TTabSheet;
+  AField: TField; var ATop, ALeft: Integer);
+    /// <summary>
+    /// Contrutor do componente CheckBox
+    /// </summary>
+    procedure ConstruirCheckBox(ATabSheetCadastro: TTabSheet;
+  AField: TField; var ATop, ALeft: Integer);
+    /// <summary>
+    /// Atualiza posicionamento automático dos edits
+    /// </summary>
+    procedure AtualizarPosicaoEdits(AComponente: TComponent;
+      ATabSheetCadastro: TTabSheet; var ALeft: Integer; var lTop: Integer);
+    /// <summary>
+    /// Atualiza posicionamento LEFT dos edits criados automáticamente
+    /// </summary>
+    procedure AtualizarPosicaoLeftEdit(AComponente: TComponent; var ALeft: Integer);
+    procedure CriarAcoesBotoes;
+    procedure InjetarAcoesBotoes;
+    procedure OnUpdateDataFrame(Sender: TObject);
+    function ContarRegistroGridMaior: boolean;
+    procedure SincronizarDados(AReset: Boolean = false);
+    procedure OnDBGridListagemFrameKeyPress(Sender: TObject; var Key: Char);
+    procedure OnDBGridListagemFrameKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  protected
+    /// <summary>
+    /// Seleciona uma célula no DBgrid para edição
+    /// </summary>
+    procedure SelecionarCelula(Sender: TObject);
+    /// <summary>
+    /// Grava um registro em edição
+    /// </summary>
+    function Gravar: iModelBaseCadastro;
+    /// <summary>
+    /// Cancela a edição de um registro
+    /// </summary>
+    function Cancelar: iModelBaseCadastro;
+    /// <summary>
+    ///  Varifica se o campo pode ser exibido
+    /// </summary>
+    /// <param name="AField">
+    ///  O campo FIELD é passado como paramentro para ser verificado se tem visibilidade;
+    /// </param>
+    function ValidarCampoVisivel(
+      const AFieldName: String): Boolean;
+    /// <summary>
+    ///  Cria o controle para os formulários
+    /// </summary>
+    /// <param name="AEmbedded">
+    ///  Injeta a dependencia do Fromulário que fornececera as informações para a automação das ações
+    /// </param>
+    constructor create(AEmbedded: TFrame);
+    /// <summary>
+    ///  Cria uma lista com os eventos do FRAME
+    /// </summary>
+    property ListaAcoes: TDicionarioAcoes read FListaAcoesFrame write FListaAcoesFrame;
+  public
+    /// <summary>
+    ///  Instancia o controle
+    /// </summary>
+    /// <param name="AEmbedded">
+    ///  Injeta a dependencia do Fromulário que fornececera as informações para a automação das ações
+    /// </param>
+    class function New(AEmbedded: TFrame): iModelBaseCadastro;
+    function IniciarAcao(const AAcao: TTipoAcao; AResetDados: Boolean = false): iModelBaseCadastro;
+    destructor Destroy; override;
+    function SetGravaAutomatico(AProcedimento: TRotinaGravaAutomatico):iModelBaseCadastro;
+    function GetGravaAutomatico: TRotinaGravaAutomatico;
+    function PegarDataSourcePrincpal: TDataSource;
+    function PegarColecaoDados: TDadosColecao;
+  end;
+
+implementation
+
+uses
+  Vendas.Controller.Classes.CriaEventosAnonimous,
+  Vendas.Dao.Conexao.Mysql,
+  Vendas.View.Frame.Base;
+
+{ TBaseCadstro }
+
+class function TBaseFrameController.New(AEmbedded: TFrame): iModelBaseCadastro;
+begin
+  Result := Self.Create(AEmbedded)
+end;
+
+procedure TBaseFrameController.OnUpdateDataFrame(Sender: TObject);
+begin
+  HabilitarBotoes;
+end;
+
+function TBaseFrameController.PegarColecaoDados: TDadosColecao;
+begin
+  result := FDadosFrame;
+end;
+
+procedure TBaseFrameController.SincronizarDados(AReset: Boolean = false);
+var
+  LNomeDataSource: string;
+begin
+  if not FConexao.PegarConexao.Connected then
+    FConexao.PegarConexao.Connected := True;
+
+  if (not FDataSetPrincipal.Active) or AReset then
+  begin
+    FDataSetPrincipal.Close;
+    FConexao.SetarConexao(FDataSetPrincipal);
+    FDataSetPrincipal.Open;
+    for LNomeDataSource in FListaDataSource.keys do
+    begin
+      FListaDataSource[LNomeDataSource].DataSet.Close;
+      FListaDataSource[LNomeDataSource].DataSet.Open;
+    end;
+  end;
+end;
+
+function TBaseFrameController.PegarDataSourcePrincpal: TDataSource;
+begin
+  result := FDataSourceFrame;
+end;
+
+constructor TBaseFrameController.create(AEmbedded: TFrame);
+begin
+  FConexao              := TVencasDaoConexaoMySql.New;
+  FFrameBase            := AEmbedded;
+  FConstrutor           := TVendasControlerConstrutores.Create(TForm(FFrameBase), FConexao);
+  FListaTabSheetsFrame  := TDicionarioTabSheets.Create;
+  FDataSourceFrame      := TDataSource.Create(FFrameBase);
+  FDataSetPrincipal     := TFDQuery.Create(FFrameBase);
+  FListaDataSource      := TDicionarioDataSource.Create;
+  FDadosFrame           := TDadosColecao.create;
+  ColetarAtributos;
+  CriarAcoesBotoes;
+  InjetarAcoesBotoes;
+  FAcaoAtual := taBrowse;
+  CapturaChavePrimaria;
+  GerarEditsAutomatico;
+  ColetarMetodoEditAtributos;
+  HabilitarBotoes;
+end;
+
+procedure TBaseFrameController.CriarAcoesBotoes;
+var
+  LAcao: TAction;
+  LItemAcao: TTipoAcao;
+begin
+  FListaAcoesFrame:= TDicionarioAcoes.Create;
+  FAcoesBotoes   := TActionList.Create(FFrameBase);
+  for LItemAcao   := Low(TTipoAcao) to High(TTipoAcao) do
+  begin
+    LAcao := TAction.Create(FAcoesBotoes);
+    LAcao.Caption := csTipoAcaoDescricao[LItemAcao];
+    LAcao.Name    := Format('act%s',[LAcao.Caption]);
+    case LItemAcao of
+      taBrowse:
+        LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                           procedure(Sender: TObject)
+                           begin
+                              IniciarAcao(taBrowse);
+                              Cancelar;
+                           end);
+      taNovo:
+        LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                           procedure(Sender: TObject)
+                           begin
+                              IniciarAcao(taNovo);
+                              FDataSourceFrame.DataSet.Append;
+                           end);
+      taEditar:
+        begin
+          LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                             procedure(Sender: TObject)
+                             begin
+                                IniciarAcao(taEditar);
+                                FDataSourceFrame.DataSet.Edit;
+                             end);
+          LAcao.ShortCut := TextToShortCut('ENTER');
+        end;
+      taExcluir:
+        begin
+          LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                           procedure(Sender: TObject)
+                           begin
+                              if MessageDlg('Deseja excluir este item?', mtConfirmation,[mbYes,mbNo],0) = mrYes then
+                              begin
+                                IniciarAcao(taExcluir);
+                                FDataSourceFrame.DataSet.Delete;
+                                HabilitarBotoes;
+                              end;
+                           end);
+          LAcao.ShortCut := TextToShortCut('DEL');
+        end;
+      taGravar:
+        LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                           procedure(Sender: TObject)
+                           begin
+                              IniciarAcao(taGravar);
+                              Gravar;
+                              HabilitarBotoes;
+                           end);
+      taCancelar:
+        LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
+                           procedure(Sender: TObject)
+                           begin
+                              IniciarAcao(taCancelar);
+                              Cancelar;
+                           end);
+    end;
+    FListaAcoesFrame.Add(LItemAcao, LAcao);
+  end;
+end;
+
+
+destructor TBaseFrameController.Destroy;
+begin
+  if Assigned(FDadosFrame) then
+   FreeAndNil(FDadosFrame);
+
+  if Assigned(FConstrutor) then
+    FConstrutor.DisposeOf;
+
+  if Assigned(FListaDataSource) then
+    FListaDataSource.DisposeOf;
+
+  if Assigned(FListaAcoesFrame) then
+    FListaAcoesFrame.Free;
+
+  if Assigned(FListaTabSheetsFrame) then
+    FListaTabSheetsFrame.Free;
+
+  inherited;
+end;
+
+function TBaseFrameController.Gravar: iModelBaseCadastro;
+begin
+  if FDadosFrame.ContainsKey(FDataSetPrincipal.FieldList[0].Value) then
+    FDadosFrame.Remove(FDataSetPrincipal.FieldList[0].Value);
+
+  FDadosFrame.Add(FDataSetPrincipal.FieldList[0].Value,
+                  FConstrutor.GerarDadosGravacao(TframeBase(FFrameBase).NomeBasePrincipal,
+                                                FDataSetPrincipal));
+  HabilitarBotoes;
+end;
+
+function TBaseFrameController.Cancelar: iModelBaseCadastro;
+begin
+  FDataSourceFrame.DataSet.Cancel;
+end;
+
+procedure TBaseFrameController.AtualizarPosicaoLeftEdit(AComponente: TComponent; var ALeft: Integer);
+begin
+  ALeft := ALeft + TControl(AComponente).Width + csPOSICAO_LEFT_EDIT;
+end;
+
+procedure TBaseFrameController.AtualizarPosicaoEdits(AComponente: TComponent;
+      ATabSheetCadastro: TTabSheet; var ALeft: Integer; var lTop: Integer);
+begin
+  if ATabSheetCadastro.Width < (ALeft + TControl(AComponente).Width) then
+  begin
+    ALeft := ATabSheetCadastro.Left + csPOSICAO_LEFT_EDIT;
+    lTop := lTop + (csPOSICAO_TOP_EDIT * 2);
+  end;
+end;
+
+procedure TBaseFrameController.HabilitarBotoes;
+begin
+  FListaAcoesFrame.Items[taNovo].Enabled    := ( FAcaoAtual in csModEdicao);
+  FListaAcoesFrame.Items[taEditar].Enabled  := ( FAcaoAtual in csModEdicao) and ContarRegistroGridMaior;
+  FListaAcoesFrame.Items[taExcluir].Enabled := ( FAcaoAtual in csModEdicao) and ContarRegistroGridMaior;
+  FListaAcoesFrame.Items[taGravar].Enabled  := ( FAcaoAtual in csModPersisten);
+  FListaAcoesFrame.Items[taCancelar].Enabled:= ( FAcaoAtual in csModPersisten);
+  SelecionarPagina;
+end;
+
+function TBaseFrameController.ContarRegistroGridMaior: boolean;
+begin
+  result := (FDataSourceFrame.DataSet.RecordCount > 0) or (FDadosFrame.Count > 0);
+end;
+
+procedure TBaseFrameController.SelecionarCelula(Sender: TObject);
+begin
+  if FDataSourceFrame.DataSet.IsEmpty then
+    Exit;
+
+  IniciarAcao(taEditar);
+end;
+
+procedure TBaseFrameController.SelecionarPagina;
+begin
+  if FAcaoAtual in csVizualizacao then
+    FPageBaseCadastroFrame.ActivePage :=  FListaTabSheetsFrame.Items[csVizualizacao]
+  else
+    FPageBaseCadastroFrame.ActivePage :=  FListaTabSheetsFrame.Items[csEdicao];
+end;
+
+function TBaseFrameController.SetGravaAutomatico(
+  AProcedimento: TRotinaGravaAutomatico): iModelBaseCadastro;
+begin
+  Result := Self;
+  FGravaAutomaticoProc := AProcedimento;
+end;
+
+function TBaseFrameController.ValidarCampoVisivel(
+  const AFieldName: String): Boolean;
+var
+  LRTTIContexto: TRttiContext;
+  LRTTITipo: TRttiType;
+  LRTTIAtributo: TCustomAttribute;
+begin
+  Result := False;
+  LRTTIContexto:= TRttiContext.Create;
+  LRTTITipo := LRTTIContexto.GetType(FFrameBase.ClassType);
+  for LRTTIAtributo in LRTTITipo.GetAttributes do
+    if LRTTIAtributo is TDesabilitaCamposAtributes then
+      if TDesabilitaCamposAtributes(LRTTIAtributo).ValidarCampo(AFieldName) then
+        exit(true);
+end;
+
+function TBaseFrameController.IniciarAcao(const AAcao: TTipoAcao; AResetDados: Boolean = false): iModelBaseCadastro;
+begin
+  SincronizarDados(AResetDados);
+  result := Self;
+  FAcaoAtual := AAcao;
+  HabilitarBotoes;
+end;
+
+procedure TBaseFrameController.CapturaChavePrimaria;
+var
+  LField: TField;
+begin
+  for LField in FDataSourceFrame.DataSet.Fields do
+  begin
+    if LField.datatype = ftAutoInc then
+    begin
+      FPrimariKeyFieldBase := LField;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TBaseFrameController.GerarEditsAutomatico;
+var
+  LField: TField;
+  LTabSheetCadastro: TTabSheet;
+  LTop, lLeft: Integer;
+begin
+  if not FGeraEdits then
+    Exit;
+
+  LTabSheetCadastro:= FListaTabSheetsFrame.Items[csEdicao];
+  LTop := LTabSheetCadastro.Top + csPOSICAO_TOP_EDIT;
+  lLeft:= LTabSheetCadastro.Left + csPOSICAO_LEFT_EDIT;
+  for LField in FDataSourceFrame.DataSet.Fields do
+  begin
+    if ValidarCampoVisivel(LField.FieldName) then
+      Continue;
+
+    case LField.datatype of
+      ftString, ftWideString, ftInteger, ftLargeint, ftAutoInc, ftDate, ftDateTime, ftTimeStamp:
+        ConstruirEdit(LTabSheetCadastro, LField, LTop, lLeft);
+      ftBoolean:
+        ConstruirCheckBox(LTabSheetCadastro, LField, LTop, lLeft);
+      ftFloat, ftCurrency, ftBCD:
+        ConstruirEdit(LTabSheetCadastro, LField, LTop, lLeft);
+    end;
+  end;
+end;
+
+function TBaseFrameController.GetGravaAutomatico: TRotinaGravaAutomatico;
+begin
+  result := Gravar;
+end;
+
+procedure TBaseFrameController.ConstruirEdit(ATabSheetCadastro: TTabSheet;
+  AField: TField; var ATop, ALeft: Integer);
+var
+  LLabelEdit: TDBLabeledEdit;
+begin
+  LLabelEdit := TDBLabeledEdit.Create(ATabSheetCadastro);
+  LLabelEdit.Parent := ATabSheetCadastro;
+  LLabelEdit.Name := Format(csPREFIXO_EDIT,[AField.FieldName]);
+  LLabelEdit.DataSource := FDataSourceFrame;
+  LLabelEdit.DataField := AField.FieldName;
+  LLabelEdit.EditLabel.Caption := AField.DisplayLabel;
+  AtualizarPosicaoEdits(LLabelEdit, ATabSheetCadastro, ALeft, ATop);
+  LLabelEdit.Top := ATop;
+  LLabelEdit.Left := ALeft;
+  LLabelEdit.AlignWithMargins := True;
+  LLabelEdit.Margins.Top := csMARGIN_TOP_EDIT;
+  LLabelEdit.Width := (AField.DisplayWidth * 2) + 100;
+  LLabelEdit.Enabled := not AField.ReadOnly;
+  LLabelEdit.MaxLength := AField.DisplayWidth;
+  AtualizarPosicaoLeftEdit(LLabelEdit, ALeft);
+end;
+
+procedure TBaseFrameController.ConstruirCheckBox(ATabSheetCadastro: TTabSheet;
+  AField: TField; var ATop, ALeft: Integer);
+var
+  LCheckBox: TDBCheckBox;
+begin
+  LCheckBox := TDBCheckBox.Create(ATabSheetCadastro);
+  LCheckBox.Parent := ATabSheetCadastro;
+  LCheckBox.Name := Format(csPREFIXO_CHECKBOX,[AField.FieldName]);
+  LCheckBox.DataSource := FDataSourceFrame;
+  LCheckBox.DataField := AField.FieldName;
+  LCheckBox.Caption := AField.DisplayLabel;
+  AtualizarPosicaoEdits(LCheckBox, ATabSheetCadastro, ALeft, ATop);
+  LCheckBox.Top := ATop;
+  LCheckBox.Left := ALeft;
+  LCheckBox.AlignWithMargins := True;
+  LCheckBox.Margins.Top := csMARGIN_TOP_EDIT;
+  LCheckBox.Width := (AField.DisplayWidth * 2) + 100;
+  LCheckBox.Enabled := not AField.ReadOnly;
+  AtualizarPosicaoLeftEdit(LCheckBox, ALeft);
+end;
+
+procedure TBaseFrameController.ConfiguraAtibutos(AoRTTIField: TRttiField);
+var
+  LRTTIAtributo: TCustomAttribute;
+  LButoonAcao: TButton;
+  LPagina: TTabSheet;
+  procedure MontarAcaoAtricbuto;
+  begin
+    LButoonAcao := AoRTTIField.GetValue(FFrameBase).AsType<TButton>;
+  end;
+  procedure MontarOperacaoAtricbuto;
+  begin
+    LPagina := AoRTTIField.GetValue(FFrameBase).AsType<TTabSheet>;
+    FListaTabSheetsFrame.Add(TOperacaoAtributes(LRTTIAtributo).TipoOperacao, LPagina);
+  end;
+begin
+  for LRTTIAtributo in AoRTTIField.GetAttributes do
+  begin
+    if LRTTIAtributo is TOperacaoAtributes then
+      MontarOperacaoAtricbuto;
+
+    if LRTTIAtributo is TAcoesAtributes then
+      MontarAcaoAtricbuto;
+  end;
+end;
+
+procedure TBaseFrameController.ConfigurarBasePrincipal;
+var
+  LCampo: TField;
+  LColuna: TColumn;
+begin
+  FDataSourceFrame.DataSet := FDataSetPrincipal;
+  FDataSetPrincipal.Active := True;
+  for LCampo in FDataSetPrincipal.Fields do
+  begin
+    if ValidarCampoVisivel(LCampo.FieldName) then
+      Continue;
+
+    LColuna := FDBGridListagemFrame.Columns.Add;
+    LColuna.Field := LCampo;
+    LColuna.Title.Caption := LCampo.DisplayLabel;
+    LColuna.Width := (LCampo.DisplayWidth * 2) + csESPACO_CELULA;
+  end;
+end;
+
+procedure TBaseFrameController.ColetarAtributos;
+var
+  LRTTIContexto: TRttiContext;
+  LRTTITipo: TRttiType;
+  LRTTIField: TRttiField;
+  LRTTIAtributo: TCustomAttribute;
+  LDataSourceTemp: TDataSource;
+begin
+  LRTTIAtributo := nil;
+  LRTTIContexto := TRttiContext.Create;
+  LRTTITipo := LRTTIContexto.GetType(FFrameBase.ClassType);
+  for LRTTIAtributo in LRTTITipo.GetAttributes do
+    if LRTTIAtributo is TTabelasAuxiliares then
+    begin
+      var oTabelasAuxiliares  := TTabelasAuxiliares(LRTTIAtributo);
+      LDataSourceTemp         := TDataSource.Create(FFrameBase);
+      LDataSourceTemp.Name    := FConstrutor.PegarNomeDataSource(oTabelasAuxiliares.Tabela);
+      LDataSourceTemp.DataSet := FConstrutor
+                                  .CriarDataSets(oTabelasAuxiliares.DataSetAuxiliar,
+                                                 oTabelasAuxiliares.Tabela);
+      FListaDataSource.Add(LDataSourceTemp.Name, LDataSourceTemp);
+    end;
+
+    if LRTTIAtributo is TTituloFormAtributes then
+    begin
+      var oTituloFormAtributes                := TTituloFormAtributes(LRTTIAtributo);
+      TframeBase(FFrameBase).NomeBasePrincipal:= oTituloFormAtributes.Tabela;
+      FGeraEdits                              := TTituloFormAtributes(LRTTIAtributo).GeraEdits;
+      FClasseDataSetPrincipal                 := oTituloFormAtributes.ClasseDataSetPrincipal;
+      if not (FClasseDataSetPrincipal = nil) then
+        FDataSetPrincipal := FConstrutor
+                                .CriarDataSets(
+                                            FClasseDataSetPrincipal,
+                                            oTituloFormAtributes.Tabela,
+                                            FDataSetPrincipal,
+                                            FListaDataSource,
+                                            );
+      FDataSourceFrame.OnUpdateData := OnUpdateDataFrame;
+    end;
+
+  FPageBaseCadastroFrame:= LRTTITipo
+                              .GetField('pgChildBase')
+                              .GetValue(FFrameBase).AsType<TPageControl>;
+
+  FDBGridListagemFrame  := LRTTITipo
+                            .GetField('dbgFrame')
+                            .GetValue(FFrameBase).AsType<TDBGrid>;
+
+  FDBGridListagemFrame.DataSource := FDataSourceFrame;
+  ConfigurarBasePrincipal;
+  FDBGridListagemFrame.OnDblClick := SelecionarCelula;
+  FDBGridListagemFrame.OnKeyPress := OnDBGridListagemFrameKeyPress;
+  FDBGridListagemFrame.OnKeyDown  := OnDBGridListagemFrameKeyDown;
+
+  for LRTTIField in LRTTITipo.GetFields do
+    ConfiguraAtibutos(LRTTIField);
+end;
+
+
+procedure TBaseFrameController.ColetarMetodoEditAtributos;
+var
+  LRTTIContexto: TRttiContext;
+  LRTTITipo, LRTTITipoEdit: TRttiType;
+  LRTTIMetodo: TRttiMethod;
+  LRTTIProperty: TRttiProperty;
+  LRTTIAtributo: TCustomAttribute;
+  LHandlerMetodo: TMethod;
+  LNomeComponent: string;
+  LLabelEditComponente: TDBLabeledEdit;
+begin
+  LRTTIContexto:= TRttiContext.Create;
+  LRTTITipo := LRTTIContexto.GetType(FClasseDataSetPrincipal.ClassInfo);
+  for LRTTIMetodo in LRTTITipo.GetMethods do
+    for LRTTIAtributo in LRTTIMetodo.GetAttributes do
+      if LRTTIAtributo is TEventoOnExitAtributes then
+      begin
+        LNomeComponent := format(csPREFIXO_EDIT,[TEventoOnExitAtributes(LRTTIAtributo).NomeCampo]);
+        if Assigned(FListaTabSheetsFrame.Items[csEdicao].FindComponent(LNomeComponent)) then
+        begin
+          LLabelEditComponente :=  TDBLabeledEdit(FListaTabSheetsFrame.Items[csEdicao].FindComponent(LNomeComponent));
+          LRTTITipoEdit := LRTTIContexto.GetType(LLabelEditComponente.ClassType);
+          LRTTIProperty := LRTTITipoEdit.GetProperty(csEVENTO_ONEXIT);
+          LHandlerMetodo.Code := LRTTIMetodo.CodeAddress;
+          LHandlerMetodo.Data := LLabelEditComponente;
+          LRTTIProperty.SetValue(LLabelEditComponente,TValue.From<TNotifyEvent>(TNotifyEvent(LHandlerMetodo)));
+        end;
+        FGeraEdits := TTituloFormAtributes(LRTTIAtributo).GeraEdits;
+      end;
+end;
+
+procedure TBaseFrameController.InjetarAcoesBotoes;
+var
+  LRTTIContexto: TRttiContext;
+  LRTTITipo: TRttiType;
+  LRTTIField: TRttiField;
+  LRTTIAtributo: TCustomAttribute;
+  LBotaoEvento: TButton;
+  LAcoesAtributes: TAcoesAtributes;
+begin
+  LRTTIContexto := TRttiContext.Create;
+  LRTTITipo     := LRTTIContexto.GetType(FFrameBase.ClassType);
+  for LRTTIField in LRTTITipo.GetFields do
+    for LRTTIAtributo in LRTTIField.GetAttributes do
+      if LRTTIAtributo is TAcoesAtributes then
+      begin
+        LAcoesAtributes := (LRTTIAtributo as TAcoesAtributes);
+        LBotaoEvento    := LRTTIField.GetValue(FFrameBase).AsType<TButton>;
+        if Assigned(LBotaoEvento) then
+          LBotaoEvento.Action := FListaAcoesFrame[LAcoesAtributes.TipoAcao]
+      end;
+end;
+
+procedure TBaseFrameController.OnDBGridListagemFrameKeyPress(Sender: TObject; var Key: Char);
+var
+  LDBGrid: TDBGrid absolute Sender;
+begin
+  if Key = #13 then
+    FListaAcoesFrame[taEditar].Execute;
+end;
+
+procedure TBaseFrameController.OnDBGridListagemFrameKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = vk_delete then
+    FListaAcoesFrame[taExcluir].Execute;
+end;
+
+
+end.

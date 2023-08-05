@@ -1,0 +1,7 @@
+unit Vendas.Controller.Entidade.Cliente;
+
+interface
+
+implementation
+
+end.

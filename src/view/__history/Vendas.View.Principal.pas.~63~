@@ -1,0 +1,93 @@
+unit Vendas.View.Principal;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  System.Actions,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.ExtCtrls,
+  Vcl.ComCtrls,
+  Vcl.ActnList,
+  Vcl.Grids,
+  Vcl.DBGrids,
+  Data.DB,
+  FireDAC.Stan.Pool,
+  Vendas.Model.Conexao,
+  Vendas.Controller.Classes.BaseCadastroAtributo,
+  Vendas.Model.BaseCadastro, Vendas.Controller.BaseCadastro;
+
+type
+  [TTituloFormAtributes('Vendas',true)]
+  TfrmPrincipal = class(TForm)
+    pnlTopo: TPanel;
+    pnlBase: TPanel;
+    lblTituloVendas: TLabel;
+    actBaseFormulario: TActionList;
+    [TAcoesAtributes(taNovo)]
+    actNovo: TAction;
+    [TAcoesAtributes(taEditar)]
+    actAlterar: TAction;
+    [TAcoesAtributes(taExcluir)]
+    actExcluir: TAction;
+    [TAcoesAtributes(taGravar)]
+    actGravar: TAction;
+    [TAcoesAtributes(taCancelar)]
+    actCancelar: TAction;
+    actSair: TAction;
+    pnlSide: TPanel;
+    btnCancelar: TButton;
+    btnNovo: TButton;
+    btnAlterar: TButton;
+    btnExcluir: TButton;
+    btnGravar: TButton;
+    btnSair: TButton;
+    stbStatus: TStatusBar;
+    pgControleTelas: TPageControl;
+    [TOperacaoAtributes(csVizualizacao)]
+    tbsListagem: TTabSheet;
+    [TOperacaoAtributes(csEdicao)]
+    tbsFormulario: TTabSheet;
+    dbgListagem: TDBGrid;
+    gbxInformacao: TGroupBox;
+    procedure FormCreate(Sender: TObject);
+    procedure actNovoExecute(Sender: TObject);
+  private
+    FBaseCadastro: iModelBaseCadastro;
+    FConexao: iConexao;
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+
+implementation
+
+uses
+  Vendas.Dao.Conexao.Mysql;
+
+{$R *.dfm}
+
+procedure TfrmPrincipal.actNovoExecute(Sender: TObject);
+begin
+  FBaseCadastro.IniciarAcao(taNovo);
+end;
+
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+begin
+  FBaseCadastro := TControllerVendaBaseCadastro.New(Self);
+  FConexao      := TVencasDaoConexaoMySql.New;
+  //FConexao.PegarNameConexao(qryCliente);
+  if not FConexao.IsConected then
+    raise Exception.Create('Erro Banco de Dados não conectado.');
+
+end;
+
+end.

@@ -1,0 +1,64 @@
+unit Vendas.Controller.Conexao.Mysql;
+
+interface
+
+uses
+  FireDAC.Comp.Client,
+  Vendas.Controller.Conexao.Pool,
+  Vendas.Model.Conexao;
+
+type
+  TVencasControllerConexaoMySql = class(TInterfacedObject, iConexao)
+  private
+    [Week]
+    FConexaoPool: iConexaoPool;
+    constructor Create;
+  public
+    destructor Destroy; override;
+    class function New : iConexao;
+    function PegarNameConexao(out AQuery: TFDQuery): iConexao; overload;
+    function IsConected: Boolean;
+  end;
+
+implementation
+
+constructor TVencasControllerConexaoMySql.Create;
+var
+  oConnectionDefParams: TConnectionDefParams;
+begin
+  oConnectionDefParams.ConnectionDefName := 'MYSQL_CONNECTION';
+  oConnectionDefParams.Server            := 'localhost';
+  oConnectionDefParams.Database          := 'DBVendas';
+  oConnectionDefParams.UserName          := 'root';
+  oConnectionDefParams.Password          := '12936511';
+  oConnectionDefParams.DriverName        := 'MYSQL_CONN';
+  oConnectionDefParams.Driver            := 'MYSQL';
+  oConnectionDefParams.VendorLib         := 'D:\projetos\ProjetoVendas_WK\bin\debug\libmariadb.dll';
+  oConnectionDefParams.LocalConnection   := True;
+
+  FConexaoPool:= TVendasControllerConexaoPool.New(oConnectionDefParams);
+end;
+
+destructor TVencasControllerConexaoMySql.Destroy;
+begin
+  inherited;
+end;
+
+function TVencasControllerConexaoMySql.IsConected: Boolean;
+begin
+  Result := FConexaoPool.IsConnected;
+end;
+
+class function TVencasControllerConexaoMySql.New : iConexao;
+begin
+  Result := Self.Create;
+end;
+
+function TVencasControllerConexaoMySql.PegarNameConexao(out AQuery: TFDQuery): iConexao;
+begin
+  result:= Self;
+  FConexaoPool.PegarNameConexao(AQuery);
+end;
+
+end.
+

@@ -1,0 +1,38 @@
+unit Vendas.Controller.Classes.CriaEventosAnonimous;
+
+interface
+
+uses
+  System.Classes,
+  System.SysUtils;
+
+type
+  TCriaEventosAnonymous = class(TComponent)
+  protected
+    FClosure: TProc<TObject>;
+    procedure OnNotifyEvent(Sender: TObject);
+  public
+    class function Create(Owner: TComponent; const Closure: TProc<TObject>): TNotifyEvent; reintroduce;
+    function Attach(const Closure: TProc<TObject>): TNotifyEvent;
+  end;
+
+implementation
+
+class function TCriaEventosAnonymous.Create(Owner: TComponent; const Closure: TProc<TObject>): TNotifyEvent;
+begin
+  Result := inherited Create(Owner).Attach(Closure);
+end;
+
+function TCriaEventosAnonymous.Attach(const Closure: TProc<TObject>): TNotifyEvent;
+begin
+  FClosure := Closure;
+  Result := Self.OnNotifyEvent
+end;
+
+procedure TCriaEventosAnonymous.OnNotifyEvent(Sender: TObject);
+begin
+  if Assigned(FClosure) then
+    FClosure(Sender)
+end;
+
+end.

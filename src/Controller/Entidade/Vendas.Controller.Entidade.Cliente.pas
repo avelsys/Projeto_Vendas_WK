@@ -1,0 +1,34 @@
+unit Vendas.Controller.Entidade.Cliente;
+
+interface
+
+uses
+  Data.DB,
+  Generics.Collections,
+  Vendas.Controller.Classes.BaseCadastroAtributo;
+
+type
+  TVendaControllerEntidadeCliente = class
+  private
+    FcdCliente: Integer;
+    FNome: string;
+    FCidade: string;
+    FUF: string;
+  public
+    [TMontaCamposDataSet('cdcliente','Cód. Cliente', ftAutoInc)]
+    property cdVenda: Integer read FcdCliente write FcdCliente;
+    [TMontaCamposDataSet('dsnome','Nome do Cliente', ftString, 50)]
+    property Nome: string read FNome write FNome;
+    [TMontaCamposDataSet('dscidade','Cidade', ftString, 50)]
+    property Cidade: string read FCidade write FCidade;
+    [TMontaCamposDataSet('sguf','UF', ftString, 2)]
+    property UF: string read FUF write FUF;
+
+
+  end;
+
+implementation
+
+{ TVendaControllerEntidadeCliente }
+
+end.

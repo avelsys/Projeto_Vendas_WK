@@ -1,0 +1,65 @@
+inherited frameVendaItem: TframeVendaItem
+  inherited pnlCenter: TPanel
+    ExplicitWidth = 634
+    ExplicitHeight = 203
+    inherited pgChildBase: TPageControl
+      ExplicitWidth = 628
+      ExplicitHeight = 190
+      inherited tbsChildListagem: TTabSheet
+        inherited dbgFrame: TDBGrid
+          Width = 338
+          Align = alLeft
+        end
+        object DBGrid1: TDBGrid
+          Left = 300
+          Top = 0
+          Width = 320
+          Height = 160
+          Align = alRight
+          DataSource = DataSource1
+          TabOrder = 1
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+        end
+      end
+    end
+  end
+  inherited pnlSide: TPanel
+    ExplicitTop = 224
+    inherited btnNew: TButton
+      ExplicitLeft = 5
+      ExplicitTop = 5
+    end
+    inherited btnEdit: TButton
+      ExplicitLeft = 75
+      ExplicitTop = 5
+    end
+    inherited btnDel: TButton
+      ExplicitLeft = 215
+      ExplicitTop = 5
+    end
+    inherited btnCan: TButton
+      ExplicitLeft = 285
+      ExplicitHeight = 27
+    end
+    inherited btnSaf: TButton
+      ExplicitLeft = 145
+      ExplicitTop = 5
+    end
+    object Edit1: TEdit
+      Left = 432
+      Top = 8
+      Width = 121
+      Height = 23
+      TabOrder = 5
+      Text = 'Edit1'
+    end
+  end
+  object DataSource1: TDataSource
+    Left = 443
+    Top = 15
+  end
+end

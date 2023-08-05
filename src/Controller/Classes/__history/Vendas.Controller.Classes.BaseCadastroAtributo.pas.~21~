@@ -1,0 +1,183 @@
+unit Vendas.Controller.Classes.BaseCadastroAtributo;
+
+interface
+Uses
+  Vendas.Model.BaseCadastro, Data.DB;
+
+type
+  TTabelasAuxiliares = class(TCustomAttribute)
+  private
+    FTabela: string;
+    FChavePrimaria: string;
+  public
+    constructor Create(ATabela, AChavePrimaria: string);
+    property Tabela: string read FTabela write FTabela;
+    property ChavePrimaria: string read FChavePrimaria write FChavePrimaria;
+  end;
+
+  TMontaCamposLooKup = class(TCustomAttribute)
+  private
+    FNomeTabelaFK: string;
+    FChavePrimaria: string;
+    FChaveEstrangeira: string;
+    FCampoResult: string;
+    FDisplayLabel: string;
+    FTipoCampo: TFieldType;
+    FTamanho: Integer;
+  public
+    constructor Create(ANomeTabelaFK, AChavePrimaria, AChaveEstrangeira,
+      ACampoResult, ADisplayLabel: string; ATipoCampo: TFieldType; ATamanho: integer = 0);
+    property NomeTabelaFK: string read FNomeTabelaFK write FNomeTabelaFK;
+    property ChavePrimaria: string read FChavePrimaria write FChavePrimaria;
+    property ChaveEstrangeira: string read FChaveEstrangeira write FChaveEstrangeira;
+    property CampoResult: string read FCampoResult write FCampoResult;
+    property DisplayLabel: string read FDisplayLabel write FDisplayLabel;
+    property TipoCampo: TFieldType read FTipoCampo write FTipoCampo;
+    property Tamanho: Integer read FTamanho write FTamanho;
+  end;
+
+  TMontaCamposDataSet = class(TCustomAttribute)
+  private
+    FNomeCampo: string;
+    FDisplayLabel: string;
+    FTipoCampo: TFieldType;
+    FTamanho: Integer;
+  public
+    constructor Create(ANomeCampo, ADisplayLabel: string;
+      ATipoCampo: TFieldType; ATamanho: integer = 0);
+    property NomeCampo: string read FNomeCampo write FNomeCampo;
+    property DisplayLabel: string read FDisplayLabel write FDisplayLabel;
+    property TipoCampo: TFieldType read FTipoCampo write FTipoCampo;
+    property Tamanho: Integer read FTamanho write FTamanho;
+  end;
+
+  TDesabilitaCamposAtributes = class(TCustomAttribute)
+  private
+    FCampo: string;
+  public
+    constructor Create(ACampo: string);
+    function ValidarCampo(const ACampoField: string): Boolean;
+    property Campo: string read FCampo write FCampo;
+  end;
+
+  TAcoesAtributes = class(TCustomAttribute)
+  private
+    FTipoAcao: TTipoAcao;
+  public
+    constructor Create(AAcao: TTipoAcao);
+    property TipoAcao: TTipoAcao read FTipoAcao write FTipoAcao;
+  end;
+
+  TOperacaoAtributes = class(TCustomAttribute)
+  private
+    FTipoOperacao: TArrayAcao;
+  public
+    constructor Create(AOperacao: TArrayAcao);
+    property TipoOperacao: TArrayAcao read FTipoOperacao write FTipoOperacao;
+  end;
+
+  TTituloFormAtributes = class(TCustomAttribute)
+  private
+    FCaptionForm: String;
+    FGeraEdits: Boolean;
+    FDataSetPrincipal: TClass;
+    FTabela: string;
+  public
+    constructor Create(ACaptionForm, ATabela: String;
+      ADataSetPrincipal: TClass; AGeraEdits: boolean = false);
+    property CaptionForm: String read FCaptionForm write FCaptionForm;
+    property Tabela: string read FTabela write FTabela;
+    property DataSetPrincipal: TClass read FDataSetPrincipal write FDataSetPrincipal;
+    property GeraEdits: Boolean read FGeraEdits write FGeraEdits;
+
+  end;
+
+  TEventoOnExitAtributes = class(TCustomAttribute)
+  private
+    FNomeCampo: String;
+  public
+    constructor Create(ANomeCampo: String);
+    property NomeCampo: String read FNomeCampo write FNomeCampo;
+  end;
+
+implementation
+
+{ TAcoesAtributes }
+
+constructor TAcoesAtributes.Create(AAcao: TTipoAcao);
+begin
+  FTipoAcao := AAcao;
+end;
+
+{ TOperacaoAtributes }
+
+constructor TOperacaoAtributes.Create(AOperacao: TArrayAcao);
+begin
+  FTipoOperacao := AOperacao;
+end;
+
+{ TTituloFormAtributes }
+
+constructor TTituloFormAtributes.Create(ACaptionForm, ATabela: String;
+      ADataSetPrincipal: TClass; AGeraEdits: boolean = false);
+begin
+  FCaptionForm := ACaptionForm;
+  FTabela := ATabela;
+  FGeraEdits:= AGeraEdits;
+  FDataSetPrincipal:= ADataSetPrincipal;
+end;
+
+{ TEventoOnExitAtributes }
+
+constructor TEventoOnExitAtributes.Create(ANomeCampo: String);
+begin
+  FNomeCampo := ANomeCampo;
+end;
+
+{ TDesabilitaCamposAtributes }
+
+constructor TDesabilitaCamposAtributes.Create(ACampo: string);
+begin
+  FCampo := ACampo;
+end;
+
+function TDesabilitaCamposAtributes.ValidarCampo(
+  const ACampoField: string): Boolean;
+begin
+  result :=  ACampoField = FCampo;
+end;
+
+{ TMontaCamposDataSet }
+
+constructor TMontaCamposDataSet.Create(ANomeCampo, ADisplayLabel: string;
+      ATipoCampo: TFieldType; ATamanho: integer = 0);
+begin
+  FNomeCampo   := ANomeCampo;
+  FDisplayLabel:= ADisplayLabel;
+  FTipoCampo   := ATipoCampo;
+  FTamanho     := ATamanho;
+end;
+
+{ TMontaCamposLooKup }
+
+constructor TMontaCamposLooKup.Create(ANomeTabelaFK, AChavePrimaria, AChaveEstrangeira,
+  ACampoResult, ADisplayLabel: string; ATipoCampo: TFieldType; ATamanho: integer = 0);
+begin
+  FNomeTabelaFK     := ANomeTabelaFK;
+  FChavePrimaria    := AChavePrimaria;
+  FChaveEstrangeira := AChaveEstrangeira;
+  FCampoResult      := ACampoResult;
+  FDisplayLabel     := ADisplayLabel;
+  FTipoCampo        := ATipoCampo;
+  FTamanho          := ATamanho;
+end;
+
+{ TTabelasAuxiliares }
+
+constructor TTabelasAuxiliares.Create(ATabela, AChavePrimaria: string);
+begin
+  FTabela: string;
+  FChavePrimaria: string;
+end;
+
+end.

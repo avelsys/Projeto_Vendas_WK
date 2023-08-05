@@ -1,0 +1,27 @@
+unit Vendas.Controller.Classes.Util;
+
+interface
+
+uses
+  Vcl.Controls,
+  Vcl.StdCtrls,
+  System.Classes,
+  System.SysUtils;
+
+implementation
+
+function RetornarEdit(AControleParente: TEdit; ANomeCampo: string): TEdit;
+var
+  LNomeCampo: string;
+  LComponente: TComponent;
+begin
+  LNomeCampo := format('edt%s',[ANomeCampo]);
+  LComponente:= AControleParente.Parent.findcomponent(LNomeCampo);
+  if Assigned(LComponente) then
+    result := (LComponente as TEdit)
+  else
+    result := nil
+end;
+
+
+end.

@@ -1,0 +1,37 @@
+unit Vendas.View.Frame.VendaItem;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.Grids,
+  Vcl.DBGrids,
+  Vcl.ComCtrls,
+  Vcl.ExtCtrls,
+  Vendas.View.Frame.Base,
+  Data.DB,
+  Vendas.Controller.Classes.BaseCadastroAtributo,
+  Vendas.Controller.Entidade.VendaItem,
+  Vendas.Controller.Entidade.Produto;
+
+type
+  [TTabelasAuxiliares('produto','cdproduto',TVendaControllerEntidadeProduto)]
+  [TDesabilitaCamposAtributes('cdvendaitem')]
+  [TDesabilitaCamposAtributes('cdvenda')]
+  [TTituloFormAtributes('Vendas Itens','venda_item',TVendaControllerEntidadeVendaItem,true)]
+  TframeVendaItem = class(TframeBase)
+  end;
+implementation
+
+{$R *.dfm}
+
+end.

@@ -1,0 +1,43 @@
+unit Vendas.View.Venda;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  System.Actions,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.ActnList,
+  Vcl.ComCtrls,
+  Vcl.StdCtrls,
+  Vcl.Grids,
+  Vcl.DBGrids,
+  Vcl.ExtCtrls,
+  Vendas.View.BaseCadastro,
+  Vendas.Controller.Classes.BaseCadastroAtributo,
+  Data.DB,
+  Vendas.Controller.Entidade.Venda,
+  Vendas.Controller.Entidade.Cliente, Vendas.View.Frame.Base,
+  Vendas.View.Frame.VendaItem;
+
+type
+  [TTabelasAuxiliares('cliente','cdcliente',TVendaControllerEntidadeCliente)]
+  [TTituloFormAtributes('Tela de Vendas','venda',TVendaControllerEntidadeVendas,true)]
+  TfrmVenda = class(TfrmBaseCadastro)
+    frameVendaItem1: TframeVendaItem;
+  end;
+
+var
+  frmVenda: TfrmVenda;
+
+implementation
+
+{$R *.dfm}
+
+end.

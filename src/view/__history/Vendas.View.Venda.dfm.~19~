@@ -1,0 +1,57 @@
+inherited frmVenda: TfrmVenda
+  TextHeight = 15
+  inherited pnlTopo: TPanel
+    inherited lblTituloVendas: TLabel
+      ExplicitLeft = 7
+      ExplicitTop = 0
+    end
+  end
+  inherited pnlBase: TPanel
+    inherited pgControleTelas: TPageControl
+      ExplicitTop = 0
+      inherited tbsFormulario: TTabSheet
+        inherited gbxInformacao: TGroupBox
+          inline frameVendaItem1: TframeVendaItem
+            Left = 3
+            Top = 96
+            Width = 754
+            Height = 396
+            TabOrder = 0
+            ExplicitLeft = 3
+            ExplicitTop = 96
+            ExplicitWidth = 754
+            ExplicitHeight = 396
+            inherited pnlCenter: TPanel
+              Width = 641
+              Height = 378
+              ExplicitTop = 15
+              ExplicitWidth = 641
+              ExplicitHeight = 378
+              inherited pgChildBase: TPageControl
+                Width = 635
+                Height = 365
+                ExplicitWidth = 635
+                ExplicitHeight = 365
+                inherited tbsChildListagem: TTabSheet
+                  ExplicitWidth = 627
+                  ExplicitHeight = 335
+                  inherited dbgFrame: TDBGrid
+                    Width = 627
+                    Height = 335
+                  end
+                end
+              end
+            end
+            inherited pnlSide: TPanel
+              Left = 650
+              Height = 378
+              ExplicitLeft = 650
+              ExplicitTop = 15
+              ExplicitHeight = 378
+            end
+          end
+        end
+      end
+    end
+  end
+end

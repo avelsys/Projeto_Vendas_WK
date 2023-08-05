@@ -1,0 +1,17 @@
+unit Vendas.Controller.Classes.Util;
+
+interface
+
+uses
+  Vcl.Controls, Vcl.StdCtrls;
+
+implementation
+
+function RetornarEdit(AControleParente: TEdit; ANomeCampo: string): TEdit;
+begin
+//  AControleParente.fin
+//  Result := ;
+end;
+
+
+end.

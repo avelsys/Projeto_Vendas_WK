@@ -1,0 +1,103 @@
+inherited frmVenda: TfrmVenda
+  ClientHeight = 438
+  ExplicitHeight = 438
+  TextHeight = 15
+  inherited pnlTopo: TPanel
+    inherited lblTituloVendas: TLabel
+      ExplicitLeft = 7
+      ExplicitTop = 0
+    end
+  end
+  inherited pnlBase: TPanel
+    Height = 378
+    ExplicitHeight = 378
+    inherited pgControleTelas: TPageControl
+      Height = 378
+      ExplicitTop = 0
+      ExplicitHeight = 378
+      inherited tbsListagem: TTabSheet
+        ExplicitHeight = 348
+        inherited dbgListagem: TDBGrid
+          Height = 348
+        end
+      end
+      inherited tbsFormulario: TTabSheet
+        ExplicitHeight = 348
+        inherited gbxInformacao: TGroupBox
+          Height = 342
+          ExplicitHeight = 342
+          inline frameVendaItem1: TframeVendaItem
+            Left = 2
+            Top = 56
+            Width = 753
+            Height = 284
+            Align = alBottom
+            TabOrder = 0
+            ExplicitLeft = 2
+            ExplicitTop = 56
+            ExplicitWidth = 753
+            ExplicitHeight = 284
+            inherited pnlCenter: TPanel
+              Width = 747
+              Height = 223
+              ExplicitWidth = 747
+              ExplicitHeight = 223
+              inherited pgChildBase: TPageControl
+                Width = 741
+                Height = 210
+                ExplicitWidth = 741
+                ExplicitHeight = 210
+                inherited tbsChildListagem: TTabSheet
+                  ExplicitWidth = 733
+                  ExplicitHeight = 180
+                  inherited dbgFrame: TDBGrid
+                    Width = 733
+                    Height = 180
+                  end
+                end
+              end
+            end
+            inherited pnlSide: TPanel
+              Top = 244
+              Width = 747
+              ExplicitTop = 244
+              ExplicitWidth = 747
+              inherited btnNew: TButton
+                ExplicitLeft = 5
+                ExplicitTop = 5
+              end
+              inherited btnEdit: TButton
+                ExplicitLeft = 75
+                ExplicitTop = 5
+              end
+              inherited btnDel: TButton
+                ExplicitLeft = 215
+                ExplicitTop = 5
+              end
+              inherited btnCan: TButton
+                ExplicitLeft = 285
+                ExplicitHeight = 27
+              end
+              inherited btnSaf: TButton
+                ExplicitLeft = 145
+                ExplicitTop = 5
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  inherited pnlSide: TPanel
+    Height = 372
+    ExplicitHeight = 372
+    inherited btnSair: TButton
+      Top = 342
+      ExplicitTop = 342
+    end
+  end
+  inherited stbStatus: TStatusBar
+    Top = 419
+    ExplicitTop = 419
+  end
+end
