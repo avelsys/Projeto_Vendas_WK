@@ -7,16 +7,6 @@ uses
   Vendas.Dao.Conexao.Pool,
   Vendas.Model.Conexao;
 
-const
-  csNOME_CONEXAO   = 'MYSQL_CONNECTION';
-  csHOSTNAME       = 'localhost';
-  csDATABASE       = 'DBVendas';
-  csUSER           = 'root';
-  csPASSWORD       = '12936511';
-  csDRIVER_CONEXAO = 'MYSQL_CONN';
-  csDRIVER         = 'MYSQL';
-  csVENDOR_LIBRARY = 'D:\projetos\ProjetoVendas_WK\bin\debug\libmariadb.dll';
-
 type
   TVencasDaoConexaoMySql = class(TInterfacedObject, iConexao)
   private
@@ -48,19 +38,8 @@ begin
 end;
 
 constructor TVencasDaoConexaoMySql.Create;
-var
-  LConnectionDefParams: TConnectionDefParams;
 begin
-  LConnectionDefParams.ConnectionDefName := csNOME_CONEXAO;
-  LConnectionDefParams.Server            := csHOSTNAME;
-  LConnectionDefParams.Database          := csDATABASE;
-  LConnectionDefParams.UserName          := csUSER;
-  LConnectionDefParams.Password          := csPASSWORD;
-  LConnectionDefParams.DriverName        := csDRIVER_CONEXAO;
-  LConnectionDefParams.Driver            := csDRIVER;
-  LConnectionDefParams.VendorLib         := csVENDOR_LIBRARY;
-  LConnectionDefParams.LocalConnection   := True;
-  FConexaoPool:= TVendasDaoConexaoPool.New(LConnectionDefParams);
+  FConexaoPool:= TVendasDaoConexaoPool.New;
 end;
 
 destructor TVencasDaoConexaoMySql.Destroy;

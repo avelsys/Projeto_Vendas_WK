@@ -46,14 +46,19 @@ type
     [TOperacaoAtributes(csEdicao)]
     tbsChildCadastro: TTabSheet;
     dbgFrame: TDBGrid;
+    lblTotalizador: TLabel;
   private
     FControllerFrame: iModelBaseCadastro;
     FRotinaExterna: TRotinaExterna;
     FGravarAutomatico: TRotinaGravaAutomatico;
     FNomeBasePrincipal: string;
+    FTotalizador: TLabel;
+    FTotalizadorValue: Currency;
     procedure ConfigurarTela;
     function GEtNomeBasePrincipal: string;
     procedure SetNomeBasePrincipal(const Value: string);
+    function GetTotalizador: Currency;
+    procedure SetTotalizador(const Value: Currency);
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -61,6 +66,7 @@ type
     property GravarAutomatico: TRotinaGravaAutomatico read FGravarAutomatico write FGravarAutomatico;
     property ControllerFrame: iModelBaseCadastro read FControllerFrame write FControllerFrame;
     property NomeBasePrincipal: string read GEtNomeBasePrincipal write SetNomeBasePrincipal;
+    property TotalizadorValue: Currency read GetTotalizador write SetTotalizador;
   end;
 
 implementation
@@ -81,9 +87,20 @@ begin
   result := Self.FNomeBasePrincipal;
 end;
 
+function TframeBase.GetTotalizador: Currency;
+begin
+  Result := FTotalizadorValue;
+end;
+
 procedure TframeBase.SetNomeBasePrincipal(const Value: string);
 begin
   Self.FNomeBasePrincipal := Value;
+end;
+
+procedure TframeBase.SetTotalizador(const Value: Currency);
+begin
+  FTotalizadorValue     := Value;
+  FTotalizador.Caption  := FTotalizadorValue.ToString;
 end;
 
 procedure TframeBase.ConfigurarTela;

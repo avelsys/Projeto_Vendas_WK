@@ -1,0 +1,29 @@
+unit Vendas.Model.LabelEditDB;
+
+interface
+
+uses
+  Vcl.DBCtrls;
+
+type
+  TLabelEditDB = class(TDBLabeledEdit)
+    FOnExitAuxiliar: TNotifyEventAuxiliar;
+    FListaDataSource: TDicionarioDataSource;
+  protected
+    property OnExitAuxiliar: TNotifyEventAuxiliar read GetOnExitAuxiliar write SetOnExitAuxiliar;
+  private
+    procedure CMExit(var Message: TCMExit); message CM_EXIT;
+    procedure DoExitAuxiliar;
+    function GetOnExitAuxiliar: TNotifyEventAuxiliar;
+    procedure SetOnExitAuxiliar(const Value: TNotifyEventAuxiliar);
+    function GetListaDataSource: TDicionarioDataSource;
+    procedure SetListaDataSource(const Value: TDicionarioDataSource);
+  public
+    property ListaDataSource: TDicionarioDataSource read GetListaDataSource write SetListaDataSource;
+
+  end;
+  end;
+
+implementation
+
+end.

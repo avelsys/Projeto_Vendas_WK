@@ -27,7 +27,7 @@ uses
   Vendas.Model.BaseCadastro,
   Vendas.Model.Conexao,
   Vendas.View.Frame.Base,
-  Vendas.Controller.Construtores, Winapi.Windows;
+  Vendas.Controller.Construtores, Winapi.Windows, Vcl.ExtCtrls;
 
 Type
   TNumericFieldClass = class of TField;
@@ -52,6 +52,7 @@ Type
     FConexao: iConexao;
     FConstrutor: TVendasControlerConstrutores;
     FListaDataSource: TDicionarioDataSource;
+    FPNLResumo: TPanel;
     FClasseDataSetPrincipal: Tclass;
     /// <summary>
     /// Faz coleta dos atributos associados ao CRUD
@@ -531,6 +532,7 @@ procedure TControllerVendaBaseCadastro.Deletar;
 var
   LQueryExec: TFDQuery;
   LField: TField;
+  LWhereScript: string;
 begin
   LField := nil;
   LQueryExec := TFDQuery.Create(nil);
@@ -539,8 +541,8 @@ begin
     for LField in FDataSetPrincipal.fields do
       if (pfInKey in LField.ProviderFlags) then
         Break;
-
-    LQueryExec.SQL.Text := format(csSCRIPT_DELETE,[FTabelaNome, LField.FieldName, LField.FieldName]);
+    LWhereScript        := format('%s = :%s',[LField.FieldName, LField.FieldName]);
+    LQueryExec.SQL.Text := format(csSCRIPT_DELETE,[FTabelaNome, LWhereScript]);
     MontarParametroQuery(LQueryExec, LField);
     LQueryExec.Prepare;
     LQueryExec.ExecSQL;
@@ -658,11 +660,14 @@ var
   LPaginaCadastro: TTabSheet;
   LPosicaoTop, LPosicaoLeft: Integer;
 begin
+
+  FPNLResumo.Visible := False;
   if not FbGeraEdits then
     Exit;
 
   LPaginaCadastro:= FListaTabSheets.Items[csEdicao];
-  LPosicaoTop := LPaginaCadastro.Top + csPOSICAO_TOP_EDIT;
+
+  LPosicaoTop := LPaginaCadastro.Top + csPOSICAO_TOP_EDIT + csMARGIN_TOP_EDIT;
   LPosicaoLeft:= LPaginaCadastro.Left + csPOSICAO_LEFT_EDIT;
   for LCampo in FDataSetPrincipal.Fields do
   begin
@@ -690,7 +695,7 @@ procedure TControllerVendaBaseCadastro.ConstruirEdit(APaginaCadastro: TTabSheet;
 var
   LLabelEdit: TDBLabeledEdit;
 begin
-  ACampo.ReadOnly              := (ACampo.FieldKind = fkLookup);
+  ACampo.ReadOnly               := (ACampo.FieldKind = fkLookup) or ACampo.ReadOnly;
   LLabelEdit := TDBLabeledEdit.Create(APaginaCadastro);
   LLabelEdit.Parent             := APaginaCadastro;
   LLabelEdit.Name               := Format(csPREFIXO_EDIT,[ACampo.FieldName]);
@@ -819,9 +824,13 @@ begin
                             .GetField('pgControleTelas')
                             .GetValue(FFormularioBase).AsType<TPageControl>;
 
-  FDBGrdListagem      := LRTTITipo
+  FDBGrdListagem       := LRTTITipo
                             .GetField('dbgListagem')
                             .GetValue(FFormularioBase).AsType<TDBGrid>;
+
+  FPNLResumo           := LRTTITipo
+                            .GetField('pnlResumo')
+                            .GetValue(FFormularioBase).AsType<TPanel>;
 
   if Assigned(FDBGrdListagem) then
   begin

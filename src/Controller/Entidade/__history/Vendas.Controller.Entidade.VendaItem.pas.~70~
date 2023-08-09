@@ -1,0 +1,114 @@
+unit Vendas.Controller.Entidade.VendaItem;
+interface
+
+uses
+  Data.DB,
+  Generics.Collections,
+  Vendas.Controller.Classes.BaseCadastroAtributo,
+  Vcl.Dialogs, Vcl.StdCtrls,
+  System.SysUtils, Vendas.Controller.Classes.Util,
+  Vcl.DBCtrls,
+  FireDAC.Comp.Client,
+  Vendas.Model.BaseCadastro,
+  Vendas.Model.LabelEditDB, System.Rtti;
+
+type
+  TVendaControllerEntidadeVendaItem = class
+  private
+    FcdProduto: Integer;
+    FcdVendaitem: Integer;
+    FcdVenda: Integer;
+    FdsNomeProduto: string;
+    Fvlunitario: Currency;
+    Fqtquantidade: Currency;
+    Fvltotal: Currency;
+    procedure ValidarQuantidadePadrao(Sender: TObject);
+    procedure Totalizador(Sender: TObject);
+  public
+
+    [TEventoOnExitAtributes('vlunitario')]
+    procedure OnExitvlunitario(Sender: TObject; Lista: TDicionarioDataSource);
+
+    [TEventoOnExitAtributes('nmQuantidade')]
+    procedure OnExitQuantide(Sender: TObject; Lista: TDicionarioDataSource);
+
+    [TEventoOnExitAtributes('cdproduto')]
+    procedure OnExitcdproduto(Sender: TObject; Lista: TDicionarioDataSource);
+
+    [TMontaCamposDataSet('cdvendaitem','Cód. Venda', ftAutoInc)]
+    property cdVendaitem: Integer read FcdVendaitem write FcdVendaitem;
+    [TMontaCamposDataSet('cdvenda','Cód. Venda', ftinteger)]
+    property cdVenda: Integer read FcdVenda write FcdVenda;
+    [TMontaCamposDataSet('cdproduto','Cód. Produto', ftinteger)]
+    property cdproduto: Integer read FcdProduto write FcdProduto;
+    [TMontaCamposLooKup('produto','cdproduto','cdproduto','dsnome','Descrição do Produto',ftString,100)]
+    property dsNomeProduto: string read FdsNomeProduto write FdsNomeProduto;
+    [TMontaCamposDataSet('vlunitario','Valor Unitário', ftBCD, 2)]
+    property vlunitario: Currency read Fvlunitario write Fvlunitario;
+    [TMontaCamposDataSet('nmQuantidade','Quantidade', ftBCD, 3)]
+    property qtquantidade: currency read Fqtquantidade write Fqtquantidade;
+    [TMontaCamposDataSet('vltotal','Total', ftBCD, 2)]
+    property vltotal: Currency read Fvltotal write Fvltotal;
+  end;
+
+implementation
+
+{ TVendaControllerEntidadeVendaItem }
+
+procedure TVendaControllerEntidadeVendaItem.OnExitcdproduto(Sender: TObject;
+  Lista: TDicionarioDataSource);
+begin
+  ValidarQuantidadePadrao(Sender);
+end;
+
+procedure TVendaControllerEntidadeVendaItem.ValidarQuantidadePadrao(Sender: TObject);
+var
+  LDataSet: TFDQuery;
+  LCampo: TDBLabeledEdit absolute Sender;
+begin
+  LDataSet := LCampo.DataSource.DataSet as TFDQuery;
+  if (LDataSet.FieldByName('nmQuantidade').IsNull) or (LDataSet.FieldByName('nmQuantidade').value <= 0) then
+    LDataSet.FieldByName('nmQuantidade').value := 1;
+end;
+
+procedure TVendaControllerEntidadeVendaItem.Totalizador(Sender: TObject);
+var
+  LDataSet: TFDQuery;
+  LCampo: TDBLabeledEdit absolute Sender;
+  LLabeltotalizador: TLabel;
+begin
+  LDataSet          := LCampo.DataSource.DataSet as TFDQuery;
+  LLabeltotalizador := LCampo.GetParentComponent.FindComponent('lblTotalizador') as TLabel;
+  if Assigned(LLabeltotalizador) then
+  begin
+
+  end;
+  
+  if (LDataSet.FieldByName('nmQuantidade').IsNull) or (LDataSet.FieldByName('nmQuantidade').value <= 0) then
+    LDataSet.FieldByName('nmQuantidade').value := 1;
+end;
+
+procedure TVendaControllerEntidadeVendaItem.OnExitQuantide(Sender: TObject; Lista: TDicionarioDataSource);
+var
+  LnmQuantidade: TDBLabeledEdit absolute Sender;
+  LDataSet: TFDQuery;
+begin
+  LDataSet:= LnmQuantidade.DataSource.DataSet as TFDQuery;
+  ValidarQuantidadePadrao(Sender);
+  LDataSet.FieldByName('vltotal').value :=  LDataSet.FieldByName('vlunitario').value *
+                                            LDataSet.FieldByName('nmQuantidade').value;
+  Totalizador(Sender);
+end;
+
+procedure TVendaControllerEntidadeVendaItem.OnExitvlunitario(Sender: TObject; Lista: TDicionarioDataSource);
+var
+  LvlUnitario: TDBLabeledEdit absolute Sender;
+  LDataSet: TFDQuery;
+begin
+  LDataSet:= LvlUnitario.DataSource.DataSet as TFDQuery;
+  ValidarQuantidadePadrao(Sender);
+  LDataSet.FieldByName('vltotal').value :=  LDataSet.FieldByName('vlunitario').value *
+                                            LDataSet.FieldByName('nmQuantidade').value;
+end;
+
+end.

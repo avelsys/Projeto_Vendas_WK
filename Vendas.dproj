@@ -86,7 +86,7 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <DCC_DcuOutput>.\dcu\</DCC_DcuOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_ExeOutput>.\bin\debug</DCC_ExeOutput>
+        <DCC_ExeOutput>.\bin\</DCC_ExeOutput>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -139,6 +139,7 @@
         </DCCReference>
         <DCCReference Include="src\Controller\Entidade\Vendas.Controller.Entidade.Produto.pas"/>
         <DCCReference Include="src\Controller\Classes\Vendas.Controller.Classes.Util.pas"/>
+        <DCCReference Include="src\Model\Vendas.Model.LabelEditDB.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -161,7 +162,7 @@
                 </Source>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile LocalName="bin\debug\Vendas.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="bin\Vendas.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Vendas.exe</RemoteName>
                         <Overwrite>true</Overwrite>

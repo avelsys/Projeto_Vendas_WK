@@ -20,7 +20,8 @@ uses
   Vendas.View.Frame.Base in 'src\view\Frame\Vendas.View.Frame.Base.pas' {frameBase: TFrame},
   Vendas.View.Frame.VendaItem in 'src\view\Frame\Vendas.View.Frame.VendaItem.pas' {frameVendaItem: TFrame},
   Vendas.Controller.Entidade.Produto in 'src\Controller\Entidade\Vendas.Controller.Entidade.Produto.pas',
-  Vendas.Controller.Classes.Util in 'src\Controller\Classes\Vendas.Controller.Classes.Util.pas';
+  Vendas.Controller.Classes.Util in 'src\Controller\Classes\Vendas.Controller.Classes.Util.pas',
+  Vendas.Model.LabelEditDB in 'src\Model\Vendas.Model.LabelEditDB.pas';
 
 {$R *.res}
 

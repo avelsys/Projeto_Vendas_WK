@@ -22,7 +22,8 @@ uses
   Vendas.Model.BaseCadastro,
   FireDAC.Comp.Client, Vcl.StdCtrls,
   Vendas.Controller.Construtores,
-  Vendas.Model.Conexao, Vcl.Menus, Winapi.Messages, Winapi.Windows;
+  Vendas.Model.Conexao, Vcl.Menus, Winapi.Messages, Winapi.Windows, Vendas.Model.LabelEditDB,
+  FireDAC.Comp.DataSet;
 
 Type
   TBaseFrameController = class(TInterfacedObject, iModelBaseCadastro)
@@ -44,6 +45,7 @@ Type
     FListaDataSource: TDicionarioDataSource;
     FDadosFrame: TDadosColecao;
     FClasseDataSetPrincipal: Tclass;
+    FTotalizadorFrame: TFDMemTable;
     /// <summary>
     /// Faz coleta dos atributos associados ao FRAME
     /// </summary>
@@ -103,6 +105,8 @@ Type
     procedure OnDBGridListagemFrameKeyPress(Sender: TObject; var Key: Char);
     procedure OnDBGridListagemFrameKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    function Deletar: iModelBaseCadastro;
+    procedure TotalizadorFrame;
   protected
     /// <summary>
     /// Seleciona uma célula no DBgrid para edição
@@ -181,29 +185,34 @@ var
   LDataSet: TFDQuery;
   LCampo: TField;
 begin
+  LCampo := nil;
   if not FConexao.PegarConexao.Connected then
     FConexao.PegarConexao.Connected := True;
 
   if (not FDataSetPrincipal.Active) or AReset then
   begin
-
     FDataSetPrincipal.Close;
     FConexao.SetarConexao(FDataSetPrincipal);
     FDataSetPrincipal.Open;
-    for LNomeDataSource in FListaDataSource.keys do
-    begin
-      LDataSet := FListaDataSource[LNomeDataSource].DataSet as TFDQuery;
-      LDataSet.Close;
-      for LCampo in LDataSet.Fields do
-        if LCampo.DataType = ftAutoInc then
-          Break;
-
-      LDataSet.MasterSource   := FDataSourceFrame;
-      LDataSet.MasterFields   := LCampo.FieldName;
-      LDataSet.IndexFieldNames:= LCampo.FieldName;
-      LDataSet.Open;
-    end;
   end;
+end;
+
+procedure TBaseFrameController.TotalizadorFrame;
+var
+  LvlTotalizar: Currency;
+begin
+  if not assigned(FDataSourceFrame.DataSet) then
+    exit;
+
+  LvlTotalizar := 0;
+  FTotalizadorFrame.CloneCursor(TFDDataSet(FDataSourceFrame.DataSet));
+  FTotalizadorFrame.First;
+  while not FTotalizadorFrame.Eof do
+  begin
+    LvlTotalizar := LvlTotalizar + FTotalizadorFrame.FieldByName('vltotal').AsCurrency;
+    FTotalizadorFrame.Next;
+  end;
+ (FFrameBase as TframeBase).lblTotalizador.Caption := LvlTotalizar.ToString;
 end;
 
 function TBaseFrameController.PegarDataSourcePrincpal: TDataSource;
@@ -221,6 +230,7 @@ begin
   FDataSetPrincipal     := TFDQuery.Create(FFrameBase);
   FListaDataSource      := TDicionarioDataSource.Create;
   FDadosFrame           := TDadosColecao.create;
+  FTotalizadorFrame     := TFDMemTable.Create(FFrameBase);
   ColetarAtributos;
   CriarAcoesBotoes;
   InjetarAcoesBotoes;
@@ -263,8 +273,8 @@ begin
           LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
                              procedure(Sender: TObject)
                              begin
-                                IniciarAcao(taEditar);
                                 FDataSourceFrame.DataSet.Edit;
+                                IniciarAcao(taEditar);
                              end);
           LAcao.ShortCut := TextToShortCut('ENTER');
         end;
@@ -276,8 +286,10 @@ begin
                               if MessageDlg('Deseja excluir este item?', mtConfirmation,[mbYes,mbNo],0) = mrYes then
                               begin
                                 IniciarAcao(taExcluir);
+                                Deletar;
                                 FDataSourceFrame.DataSet.Delete;
                                 HabilitarBotoes;
+                                TotalizadorFrame;
                               end;
                            end);
           LAcao.ShortCut := TextToShortCut('DEL');
@@ -288,7 +300,9 @@ begin
                            begin
                               IniciarAcao(taGravar);
                               Gravar;
+                              FDataSourceFrame.DataSet.Post;
                               HabilitarBotoes;
+                              TotalizadorFrame;
                            end);
       taCancelar:
         LAcao.OnExecute := TCriaEventosAnonymous.Create(FFrameBase,
@@ -305,6 +319,7 @@ end;
 
 destructor TBaseFrameController.Destroy;
 begin
+
   if Assigned(FDadosFrame) then
    FreeAndNil(FDadosFrame);
 
@@ -324,6 +339,17 @@ begin
 end;
 
 function TBaseFrameController.Gravar: iModelBaseCadastro;
+begin
+  if FDadosFrame.ContainsKey(FDataSetPrincipal.FieldList[0].Value) then
+    FDadosFrame.Remove(FDataSetPrincipal.FieldList[0].Value);
+
+  FDadosFrame.Add(FDataSetPrincipal.FieldList[0].Value,
+                  FConstrutor.GerarDadosGravacao(TframeBase(FFrameBase).NomeBasePrincipal,
+                                                FDataSetPrincipal));
+  HabilitarBotoes;
+end;
+
+function TBaseFrameController.Deletar: iModelBaseCadastro;
 begin
   if FDadosFrame.ContainsKey(FDataSetPrincipal.FieldList[0].Value) then
     FDadosFrame.Remove(FDataSetPrincipal.FieldList[0].Value);
@@ -362,6 +388,7 @@ begin
   FListaAcoesFrame.Items[taGravar].Enabled  := ( FAcaoAtual in csModPersisten);
   FListaAcoesFrame.Items[taCancelar].Enabled:= ( FAcaoAtual in csModPersisten);
   SelecionarPagina;
+  TotalizadorFrame;
 end;
 
 function TBaseFrameController.ContarRegistroGridMaior: boolean;
@@ -434,14 +461,14 @@ procedure TBaseFrameController.GerarEditsAutomatico;
 var
   LField: TField;
   LTabSheetCadastro: TTabSheet;
-  LTop, lLeft: Integer;
+  LTop, LLeft: Integer;
 begin
   if not FGeraEdits then
     Exit;
 
   LTabSheetCadastro:= FListaTabSheetsFrame.Items[csEdicao];
   LTop := LTabSheetCadastro.Top + csPOSICAO_TOP_EDIT;
-  lLeft:= LTabSheetCadastro.Left + csPOSICAO_LEFT_EDIT;
+  LLeft:= LTabSheetCadastro.Left + csPOSICAO_LEFT_EDIT;
   for LField in FDataSourceFrame.DataSet.Fields do
   begin
     if ValidarCampoVisivel(LField.FieldName) then
@@ -449,11 +476,11 @@ begin
 
     case LField.datatype of
       ftString, ftWideString, ftInteger, ftLargeint, ftAutoInc, ftDate, ftDateTime, ftTimeStamp:
-        ConstruirEdit(LTabSheetCadastro, LField, LTop, lLeft);
+        ConstruirEdit(LTabSheetCadastro, LField, LTop, LLeft);
       ftBoolean:
-        ConstruirCheckBox(LTabSheetCadastro, LField, LTop, lLeft);
+        ConstruirCheckBox(LTabSheetCadastro, LField, LTop, LLeft);
       ftFloat, ftCurrency, ftBCD:
-        ConstruirEdit(LTabSheetCadastro, LField, LTop, lLeft);
+        ConstruirEdit(LTabSheetCadastro, LField, LTop, LLeft);
     end;
   end;
 end;
@@ -466,10 +493,10 @@ end;
 procedure TBaseFrameController.ConstruirEdit(ATabSheetCadastro: TTabSheet;
   AField: TField; var ATop, ALeft: Integer);
 var
-  LLabelEdit: TDBLabeledEdit;
+  LLabelEdit: TLabelEditDB;
 begin
   AField.ReadOnly               := (AField.FieldKind = fkLookup);
-  LLabelEdit                    := TDBLabeledEdit.Create(ATabSheetCadastro);
+  LLabelEdit                    := TLabelEditDB.Create(ATabSheetCadastro);
   LLabelEdit.Parent             := ATabSheetCadastro;
   LLabelEdit.Name               := Format(csPREFIXO_EDIT,[AField.FieldName]);
   LLabelEdit.DataSource         := FDataSourceFrame;
@@ -484,6 +511,7 @@ begin
   LLabelEdit.Enabled            := (not AField.ReadOnly) or
                                    (pfInKey in AField.ProviderFlags);
   LLabelEdit.MaxLength          := AField.DisplayWidth;
+  LLabelEdit.ListaDataSource    := FListaDataSource;
   AtualizarPosicaoLeftEdit(LLabelEdit, ALeft);
 end;
 
@@ -620,7 +648,7 @@ var
   LRTTIAtributo: TCustomAttribute;
   LHandlerMetodo: TMethod;
   LNomeComponent: string;
-  LLabelEditComponente: TDBLabeledEdit;
+  LDBLabelEdit: TLabelEditDB;
 begin
   LRTTIContexto:= TRttiContext.Create;
   LRTTITipo := LRTTIContexto.GetType(FClasseDataSetPrincipal.ClassInfo);
@@ -631,12 +659,12 @@ begin
         LNomeComponent := format(csPREFIXO_EDIT,[TEventoOnExitAtributes(LRTTIAtributo).NomeCampo]);
         if Assigned(FListaTabSheetsFrame.Items[csEdicao].FindComponent(LNomeComponent)) then
         begin
-          LLabelEditComponente :=  TDBLabeledEdit(FListaTabSheetsFrame.Items[csEdicao].FindComponent(LNomeComponent));
-          LRTTITipoEdit := LRTTIContexto.GetType(LLabelEditComponente.ClassType);
-          LRTTIProperty := LRTTITipoEdit.GetProperty(csEVENTO_ONEXIT);
+          LDBLabelEdit :=  TLabelEditDB(FListaTabSheetsFrame.Items[csEdicao].FindComponent(LNomeComponent));
+          LRTTITipoEdit := LRTTIContexto.GetType(LDBLabelEdit.ClassType);
+          LRTTIProperty := LRTTITipoEdit.GetProperty(csEVENTO_ONEXITAUXILIAR);
           LHandlerMetodo.Code := LRTTIMetodo.CodeAddress;
-          LHandlerMetodo.Data := LLabelEditComponente;
-          LRTTIProperty.SetValue(LLabelEditComponente,TValue.From<TNotifyEvent>(TNotifyEvent(LHandlerMetodo)));
+          LHandlerMetodo.Data := LDBLabelEdit;
+          LRTTIProperty.SetValue(LDBLabelEdit,TValue.From<TNotifyEventAuxiliar>(TNotifyEventAuxiliar(LHandlerMetodo)));
         end;
         FGeraEdits := TTituloFormAtributes(LRTTIAtributo).GeraEdits;
       end;

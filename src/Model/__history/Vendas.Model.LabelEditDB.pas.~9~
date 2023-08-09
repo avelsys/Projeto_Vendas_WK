@@ -1,0 +1,63 @@
+unit Vendas.Model.LabelEditDB;
+
+interface
+
+uses
+  Vcl.DBCtrls,
+  Vendas.Model.BaseCadastro;
+
+type
+  TLabelEditDB = class(TDBLabeledEdit)
+  private
+    FOnExitAuxiliar: TNotifyEventAuxiliar;
+    FListaDataSource: TDicionarioDataSource;
+    procedure DoExitAuxiliar;
+    function GetOnExitAuxiliar: TNotifyEventAuxiliar;
+    procedure SetOnExitAuxiliar(const Value: TNotifyEventAuxiliar);
+    function GetListaDataSource: TDicionarioDataSource;
+    procedure SetListaDataSource(const Value: TDicionarioDataSource);
+  protected
+    procedure DoExit; override;
+  public
+    property ListaDataSource: TDicionarioDataSource read GetListaDataSource write SetListaDataSource;
+  published
+    property OnExitAuxiliar: TNotifyEventAuxiliar read GetOnExitAuxiliar write SetOnExitAuxiliar;
+  end;
+
+implementation
+
+{ TLabelEditDB }
+
+procedure TLabelEditDB.DoExit;
+begin
+  inherited;
+
+end;
+
+procedure TLabelEditDB.DoExitAuxiliar;
+begin
+  if Assigned(FOnExitAuxiliar) then FOnExitAuxiliar(Self, FListaDataSource);
+end;
+
+function TLabelEditDB.GetListaDataSource: TDicionarioDataSource;
+begin
+  Result :=  FListaDataSource;
+end;
+
+function TLabelEditDB.GetOnExitAuxiliar: TNotifyEventAuxiliar;
+begin
+  result := FOnExitAuxiliar;
+end;
+
+procedure TLabelEditDB.SetListaDataSource(
+  const Value: TDicionarioDataSource);
+begin
+  FListaDataSource := Value;
+end;
+
+procedure TLabelEditDB.SetOnExitAuxiliar(
+  const Value: TNotifyEventAuxiliar);
+begin
+  FOnExitAuxiliar := Value;
+end;
+end.

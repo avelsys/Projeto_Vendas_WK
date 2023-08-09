@@ -24,7 +24,7 @@ type
     property dsNomeCliente: string read FdsNomeCliente write FdsNomeCliente;
     [TMontaCamposDataSet('dtemissao','Dt Emissão', ftDate)]
     property dtEmissao: TDate read FdtEmissao write FdtEmissao;
-    [TMontaCamposDataSet('vltotal','Total', ftBCD,2)]
+    [TMontaCamposDataSet('vltotal','Total', ftBCD,2, true)]
     property vltotal: Currency read Fvltotal write Fvltotal;
   end;
 

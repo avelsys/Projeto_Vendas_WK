@@ -1,0 +1,15 @@
+unit Vendas.Model.LabelEditDB;
+
+interface
+
+uses
+  Vcl.DBCtrls;
+
+type
+  TLabelEditDB = class(TDBLabeledEdit)
+
+  end;
+
+implementation
+
+end.

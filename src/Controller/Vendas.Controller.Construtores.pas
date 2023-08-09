@@ -22,13 +22,16 @@ type
   private
     FConexao: iConexao;
     FFormParent: TForm;
-    procedure MontarCampos<T:TField, constructor>(ACampos: TMontaCamposDataSet; ADataSet: TFDQuery);
+    procedure MontarCampos<T:TField, constructor>(ACampos: TMontaCamposDataSet;
+  ADataSet: TFDQuery);
     procedure MontarCamposLooKup<T:TField, constructor>(ACampos: TMontaCamposLooKup;
       ADataSet: TFDQuery; AListaDataSources: TDicionarioDataSource = nil);
     procedure MontarParametroQuery(AQueryExec: TFDQuery;
       ADadosFrame: TDadosFrame);
     procedure MontarSqlInsert(AListaDados: System.Generics.Collections.TList<TDadosFrame>; AChaveMaster: TField; ADataSet: TFDQuery);
     procedure MontarSqlUpdate(AListaDados: TDadosLista; AChaveMaster: TField;
+      ADataSet: TFDQuery);
+    procedure MontarSqlDelete(AListaDados: TDadosLista; AChaveMaster: TField;
       ADataSet: TFDQuery);
   public
     constructor Create(AFormParent: TForm; AConexao: iConexao);
@@ -148,26 +151,39 @@ end;
 
 procedure TVendasControlerConstrutores.MontarCampos<T>(ACampos: TMontaCamposDataSet;
   ADataSet: TFDQuery);
+const
+  csTAMANHO_MINIMO_CARACTERES = 30;
+  csTAMANHO_PADRAO_CARACTERES = 100;
 var
   LField: T;
 begin
+
   LField := T(TNumericFieldClass(T).create(ADataSet));
   if ACampos.TipoCampo = ftAutoInc then
-    LField.ProviderFlags:= [pfInKey,pfInWhere,pfInUpdate]
-  else
-  LField.ProviderFlags:= [pfInWhere,pfInUpdate];
+    LField.ProviderFlags:= [pfInKey,pfInWhere,pfInUpdate];
+
   LField.FieldName    := ACampos.NomeCampo;
   LField.Displaylabel := ACampos.DisplayLabel;
   LField.Size         := ACampos.Tamanho;
+  if LField is TStringField then
+    if ACampos.Tamanho <= csTAMANHO_MINIMO_CARACTERES then
+      LField.Size  := csTAMANHO_PADRAO_CARACTERES;
+
   LField.FieldKind    := fkData;
   LField.DataSet      := ADataSet;
+  LField.ReadOnly     := ACampos.ReadOnly;
 end;
 
 procedure TVendasControlerConstrutores.MontarCamposLooKup<T>(ACampos: TMontaCamposLooKup;
   ADataSet: TFDQuery; AListaDataSources: TDicionarioDataSource = nil);
 var
   LField: T;
+  LLooKupDataSet: TDataSource;
 begin
+  LLooKupDataSet:= AListaDataSources[format(csPREFIXO_DATASOURCE,[ACampos.NomeTabelaFK])];
+  if not LLooKupDataSet.DataSet.Active then
+    LLooKupDataSet.DataSet.Open;
+
   LField := T(TNumericFieldClass(T).create(ADataSet));
   LField.FieldName        := ACampos.CampoResult;
   LField.Displaylabel     := ACampos.DisplayLabel;
@@ -175,7 +191,7 @@ begin
   LField.FieldKind        := fkLookup;
   LField.KeyFields        := ACampos.ChaveEstrangeira;
   LField.DataSet          := ADataSet;
-  LField.LookupDataSet    := AListaDataSources[format(csPREFIXO_DATASOURCE,[ACampos.NomeTabelaFK])].DataSet;
+  LField.LookupDataSet    := LLooKupDataSet.DataSet;
   LField.LookupKeyFields  := ACampos.ChavePrimaria;
   LField.LookupResultField:= ACampos.CampoResult;
 end;
@@ -196,7 +212,10 @@ begin
     if ADataSet.State = dsInsert then
       LData.Acao     := taNovo
     else
-      LData.Acao     := taEditar;
+    if ADataSet.State = dsEdit then
+      LData.Acao     := taEditar
+    else
+      LData.Acao     :=  taExcluir;
 
     if ((LField.DataType = ftAutoInc) and (LData.Acao = taNovo)) or
        (LField.FieldKind = fkLookup) then
@@ -215,8 +234,35 @@ begin
   if AListaDados.Items[0].Acao = taNovo then
     MontarSqlInsert(AListaDados, AChaveMaster, ADataSet)
   else
+  if AListaDados.Items[0].Acao = taEditar then
     MontarSqlUpdate(AListaDados, AChaveMaster, ADataSet)
+  else
+    MontarSqlDelete(AListaDados, AChaveMaster, ADataSet);
 end;
+
+procedure TVendasControlerConstrutores.MontarSqlDelete(AListaDados: TDadosLista;
+  AChaveMaster: TField; ADataSet: TFDQuery);
+var
+  LWhere: TStringList;
+  LDadosFrame: TDadosFrame;
+begin
+  LWhere := TStringList.Create;
+  try
+    for LDadosFrame in AListaDados do
+    begin
+      if (LDadosFrame.TipoDado = ftAutoInc) then
+      begin
+        LWhere.Add(format('%s = :%s', [LDadosFrame.Campo, LDadosFrame.Campo]));
+        ADataSet.SQL.Text := format(csSCRIPT_DELETE, [LDadosFrame.Tabela, LWhere.Text]);
+        MontarParametroQuery(ADataSet, LDadosFrame);
+        break;
+      end;
+    end;
+  finally
+    LWhere.DisposeOf;
+  end;
+end;
+
 
 procedure TVendasControlerConstrutores.MontarSqlInsert(AListaDados: TDadosLista; AChaveMaster: TField; ADataSet: TFDQuery);
 var

@@ -3,7 +3,12 @@ unit Vendas.Model.BaseCadastro;
 interface
 
 uses
-  System.Generics.Collections, Vcl.ActnList, Vcl.ComCtrls, Vcl.Forms, Data.DB;
+  System.Generics.Collections,
+  Vcl.ActnList,
+  Vcl.ComCtrls,
+  Vcl.Forms,
+  Data.DB,
+  Vcl.DBCtrls, Vcl.Controls;
 
 type
   TTipoAcao      = (taBrowse, taNovo, taEditar, taExcluir, taGravar, taCancelar, taSair);
@@ -23,6 +28,8 @@ type
   TDicionarioTabSheets       = TDictionary<TArrayAcao,TTabSheet>;
   TDicionarioDataSource      = TDictionary<string,TDataSource>;
   TDicionarioControle        = TDictionary<Tframe,TDataSource>;
+
+  TNotifyEventAuxiliar       = procedure(Sender: TObject; Lista: TDicionarioDataSource) of object;
 
   TDadosFrame = record
     Acao: TTipoAcao;

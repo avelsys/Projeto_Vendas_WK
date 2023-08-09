@@ -52,6 +52,8 @@ type
     tbsFormulario: TTabSheet;
     dbgListagem: TDBGrid;
     gbxInformacao: TGroupBox;
+    pnlResumo: TPanel;
+    gbxResumo: TGroupBox;
     procedure FormCreate(Sender: TObject);
   private
     FControleBase: iModelBaseCadastro;
